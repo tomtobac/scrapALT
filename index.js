@@ -8,38 +8,38 @@ puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
 
 const BASE_URL = "https://alternativeto.net/platform/all/";
 
-const getListInfo = async (page, url) => {
-  return items;
+const getListInfo = async (page) => {
+	const items = await page.evaluate(() =>
+		Array.from(document.querySelectorAll("li[data-testid]")).map((element) => {
+			const key = Object.keys(element).find((key) =>
+				key.startsWith("__reactInternalInstance")
+			);
+			const instance = element[key];
+			return instance.return.pendingProps;
+		})
+	);
+	return items;
 };
 
 // init
 (async () => {
-  const browser = await puppeteer.launch({ headless: false });
-  const page = await browser.newPage();
-  const maxPage = 5;
+	const browser = await puppeteer.launch({ headless: false });
+	const page = await browser.newPage();
+	const maxPage = 5;
+	let items = [];
 
-  for (let index = 1; index <= maxPage; index++) {
-    let url = `${BASE_URL}?p=${index}`;
-    await page.goto(url);
+	for (let index = 1; index <= maxPage; index++) {
+		let url = `${BASE_URL}?p=${index}`;
+		await page.goto(url);
     await page.waitFor(2000);
-    const items = await page.evaluate(() =>
-      Array.from(document.querySelectorAll("#mainContent .app-list-item")).map(
-        (element) => {
-          element[
-            Object.keys(element).find((key) =>
-              key.startsWith("__reactInternalInstance")
-            )
-          ].return.pendingProps;
-        }
-      )
-    );
-    console.log(items);
-  }
+    const newItems = await getListInfo(page);
+		items = items.concat(newItems);
+	}
 
-  let data = JSON.stringify(items, null, 2);
-  fs.writeFileSync("items.json", data);
+	let data = JSON.stringify(items, null, 2);
+	fs.writeFileSync("items.json", data);
 
-  await browser.close();
+	await browser.close();
 })();
 
 // const items = await page.evaluate(async () => {
