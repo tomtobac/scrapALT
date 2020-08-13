@@ -1,0 +1,12 @@
+{
+  "name": "alternativeScrap",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "2.0.0",
+    "puppeteer-extra": "^3.1.13",
+    "puppeteer-extra-plugin-adblocker": "^2.11.6",
+    "puppeteer-extra-plugin-stealth": "^2.5.0"
+  }
+}
